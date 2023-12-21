@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hakim/Models/MessageModel.dart';
 import 'package:hakim/Providers/MessageProvider.dart';
 import 'package:hakim/Utils/widgets.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -13,10 +14,13 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   TextEditingController _messageController = TextEditingController();
+  bool isUserTurn = true;
+  ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     var messagesProvider = Provider.of<MessagesProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('ሀኪም'),
@@ -24,12 +28,8 @@ class _ChatPageState extends State<ChatPage> {
       body: Column(
         children: [
           Expanded(
-            // child: ListView(
-            //   children: [
-            //     // Message('Hello', isMe: false),
-            //     // Message('Hi there!', isMe: true),
-            //   ],)
             child: ListView.builder(
+              controller: _scrollController,
               itemCount: messagesProvider.messages.length,
               itemBuilder: (context, index) {
                 var message = messagesProvider.messages[index];
@@ -37,44 +37,75 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(left: 28.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                decoration: InputDecoration(
-                  hintText: 'Type a message...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+          if (!isUserTurn)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  LoadingAnimationWidget.waveDots(
+                    color: Colors.blue.shade800,
+                    size: 20,
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    "ሀኪም is generating",
+                    style: TextStyle(color: Colors.blue.shade800),
+                  ),
+                ],
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    enabled: isUserTurn,
                   ),
                 ),
-              ),
-            ),
-            SizedBox(width: 8.0),
-            IconButton(
-              color: Colors.blue.shade800,
-              icon: Icon(
-                Icons.send,
-                size: 35,
-              ),
-              onPressed: () {
-                var messageText = _messageController.text;
+                SizedBox(width: 8.0),
+                IconButton(
+                  color: isUserTurn ? Colors.blue.shade800 : Colors.red,
+                  icon: Icon(
+                    isUserTurn ? Icons.send : Icons.stop,
+                    size: 35,
+                  ),
+                  onPressed: () {
+                    if (isUserTurn) {
+                      var messageText = _messageController.text;
 
-                var newMessage = MessageModel(text: messageText, isMe: true);
-                var messagesProvider =
-                    Provider.of<MessagesProvider>(context, listen: false);
-                messagesProvider.addMessage(newMessage);
+                      var newMessage =
+                          MessageModel(text: messageText, isMe: true);
+                      messagesProvider.addMessage(newMessage);
 
-                _messageController.clear();
-              },
+                      _messageController.clear();
+
+                      setState(() {
+                        _scrollController
+                            .jumpTo(_scrollController.position.maxScrollExtent);
+                        isUserTurn = false;
+                      });
+                    } else {
+                      setState(() {
+                        _scrollController
+                            .jumpTo(_scrollController.position.maxScrollExtent);
+                        isUserTurn = true;
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
