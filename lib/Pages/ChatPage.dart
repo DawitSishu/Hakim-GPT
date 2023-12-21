@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hakim/Models/MessageModel.dart';
+import 'package:hakim/Providers/MessageProvider.dart';
 import 'package:hakim/Utils/widgets.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -9,26 +12,29 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  TextEditingController _messageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    var messagesProvider = Provider.of<MessagesProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Page'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
-        ],
+        title: Text('ሀኪም'),
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              children: [
-                Message('Hello', isMe: false),
-                Message('Hi there!', isMe: true),
-              ],
+            // child: ListView(
+            //   children: [
+            //     // Message('Hello', isMe: false),
+            //     // Message('Hi there!', isMe: true),
+            //   ],)
+            child: ListView.builder(
+              itemCount: messagesProvider.messages.length,
+              itemBuilder: (context, index) {
+                var message = messagesProvider.messages[index];
+                return Message(message.text, isMe: message.isMe);
+              },
             ),
           ),
         ],
@@ -40,6 +46,7 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             Expanded(
               child: TextField(
+                controller: _messageController,
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
                   border: OutlineInputBorder(
@@ -55,7 +62,16 @@ class _ChatPageState extends State<ChatPage> {
                 Icons.send,
                 size: 35,
               ),
-              onPressed: () {},
+              onPressed: () {
+                var messageText = _messageController.text;
+
+                var newMessage = MessageModel(text: messageText, isMe: true);
+                var messagesProvider =
+                    Provider.of<MessagesProvider>(context, listen: false);
+                messagesProvider.addMessage(newMessage);
+
+                _messageController.clear();
+              },
             ),
           ],
         ),

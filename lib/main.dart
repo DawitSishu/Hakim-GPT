@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hakim/Pages/ChatPage.dart';
+import 'package:hakim/Providers/MessageProvider.dart';
+import 'package:provider/provider.dart';
 
 // #e12cc7
 void main() async {
@@ -9,13 +11,15 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.white,
   ));
-  runApp(MaterialApp(
-    title: 'Yene',
-    theme: ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: Colors.black,
-    ),
-    initialRoute: 'chat',
-    debugShowCheckedModeBanner: false,
-    routes: {'chat': (context) => ChatPage()},
-  ));
+  runApp(ChangeNotifierProvider(
+      create: (context) => MessagesProvider(),
+      child: MaterialApp(
+        title: 'Yene',
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: Colors.black,
+        ),
+        initialRoute: 'chat',
+        debugShowCheckedModeBanner: false,
+        routes: {'chat': (context) => ChatPage()},
+      )));
 }
