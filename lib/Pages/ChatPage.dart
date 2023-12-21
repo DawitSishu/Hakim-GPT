@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hakim/Models/MessageModel.dart';
 import 'package:hakim/Providers/MessageProvider.dart';
+import 'package:hakim/Services/GPTMessage.dart';
 import 'package:hakim/Utils/widgets.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -78,21 +79,49 @@ class _ChatPageState extends State<ChatPage> {
                     isUserTurn ? Icons.send : Icons.stop,
                     size: 35,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (isUserTurn) {
                       var messageText = _messageController.text;
 
-                      var newMessage =
-                          MessageModel(text: messageText, isMe: true);
-                      messagesProvider.addMessage(newMessage);
+                      if (messageText.trim().isNotEmpty) {
+                        var newMessage =
+                            MessageModel(text: messageText, isMe: true);
+                        messagesProvider.addMessage(newMessage);
 
-                      _messageController.clear();
+                        _messageController.clear();
 
-                      setState(() {
-                        _scrollController
-                            .jumpTo(_scrollController.position.maxScrollExtent);
-                        isUserTurn = false;
-                      });
+                        setState(() {
+                          _scrollController.jumpTo(
+                              _scrollController.position.maxScrollExtent);
+                          isUserTurn = false;
+                        });
+
+                        // Call the OpenAI API to process user message
+                        await processMessageToChatGPT(
+                          messagesProvider.messages,
+                        ).then((generatedMessage) {
+                          if (isUserTurn) {
+                            return;
+                          }
+                          if (generatedMessage == '') {
+                            showSnackbar(context);
+                            setState(() {
+                              _scrollController.jumpTo(
+                                  _scrollController.position.maxScrollExtent);
+                              isUserTurn = true;
+                            });
+                            return;
+                          }
+                          var assistantMessage =
+                              MessageModel(text: generatedMessage, isMe: false);
+                          messagesProvider.addMessage(assistantMessage);
+                          setState(() {
+                            _scrollController.jumpTo(
+                                _scrollController.position.maxScrollExtent);
+                            isUserTurn = true;
+                          });
+                        });
+                      }
                     } else {
                       setState(() {
                         _scrollController
