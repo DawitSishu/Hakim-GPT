@@ -99,10 +99,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 50),
 
               // logo
-              const Icon(
-                Icons.lock,
-                size: 100,
-              ),
+              const Icon(Icons.lock, size: 100, color: Colors.black),
 
               const SizedBox(height: 50),
 

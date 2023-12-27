@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "224184482202",
+    "project_id": "hakim-c34eb",
+    "storage_bucket": "hakim-c34eb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224184482202:android:5a370ac368bf22fad76223",
+        "android_client_info": {
+          "package_name": "com.example.hakim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuO3m16dZ9dczPtmhHnzyWW-NH__YJVv0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
