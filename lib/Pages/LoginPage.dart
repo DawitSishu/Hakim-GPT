@@ -1,6 +1,9 @@
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hakim/Pages/SignUpPgae.dart';
 import 'package:hakim/Utils/widgets.dart';
+
+import 'ChatPage.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -11,194 +14,165 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   // text editing controllers
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  // sign user in method
-  void signUserIn() async {
-    // show loading circle
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    // try sign in
-    // try {
-    //   await FirebaseAuth.instance.signInWithEmailAndPassword(
-    //     email: emailController.text,
-    //     password: passwordController.text,
-    //   );
-    //   // pop the loading circle
-    //   Navigator.pop(context);
-    // } on FirebaseAuthException catch (e) {
-    //   // pop the loading circle
-    //   Navigator.pop(context);
-    //   // WRONG EMAIL
-    //   if (e.code == 'user-not-found') {
-    //     // show error to user
-    //     wrongEmailMessage();
-    //   }
-
-    //   // WRONG PASSWORD
-    //   else if (e.code == 'wrong-password') {
-    //     // show error to user
-    //     wrongPasswordMessage();
-    //   }
-    // }
-  }
-
-  // wrong email message popup
-  void wrongEmailMessage() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const AlertDialog(
-          backgroundColor: Colors.deepPurple,
-          title: Center(
-            child: Text(
-              'Incorrect Email',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // wrong password message popup
-  void wrongPasswordMessage() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const AlertDialog(
-          backgroundColor: Colors.deepPurple,
-          title: Center(
-            child: Text(
-              'Incorrect Password',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // final emailController = TextEditingController();
+  // final passwordController = TextEditingController();
+  String email = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50),
+        child: ListView(
+          children: [
+            // const SizedBox(height: 50),
+            const SizedBox(height: 20),
 
-              // logo
-              const Icon(Icons.lock, size: 100, color: Colors.black),
+            Image.asset('assets/images/x.png', height: 200),
 
-              const SizedBox(height: 50),
+            // logo
 
-              // welcome back, you've been missed!
-              Text(
+            const SizedBox(height: 20),
+
+            // welcome back, you've been missed!
+            Center(
+              child: Text(
                 'Welcome back you\'ve been missed!',
                 style: TextStyle(
                   color: Colors.grey[700],
                   fontSize: 16,
                 ),
               ),
+            ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 50),
 
-              // email textfield
-              MyTextField(
-                controller: emailController,
-                hintText: 'Email',
-                obscureText: false,
-              ),
-
-              const SizedBox(height: 10),
-
-              // password textfield
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-              ),
-
-              const SizedBox(height: 10),
-
-              // forgot password?
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.end,
-              //     children: [
-              //       Text(
-              //         'Forgot Password?',
-              //         style: TextStyle(color: Colors.grey[600]),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-
-              const SizedBox(height: 25),
-
-              // sign in button
-              MyButton(
-                onTap: signUserIn,
-              ),
-
-              const SizedBox(height: 50),
-
-              // or continue with
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
+            // email textfield
+            Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      padding: const EdgeInsets.all(8.0),
+                      child: InputBox(
+                          inputLabel: "Email",
+                          placeHolder: "Enter Your Email Address",
+                          update: (value) {
+                            email = value;
+                          }),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InputBox(
+                        inputLabel: "Password",
+                        placeHolder: "************",
+                        update: (value) {
+                          password = value;
+                        },
+                        isPassword: true,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // sign in button
+                    CustomButton(
+                      label: "Sign IN",
+                      onPressed: () async {
+                        try {
+                          if (email.isEmpty || password.isEmpty) {
+                            showSnackbar(context,
+                                text: 'Please include all required fields!!');
+                            print("${email} ${password}");
+                            return;
+                          }
+                          final auth = FirebaseAuth.instance;
+
+                          await auth.signInWithEmailAndPassword(
+                            email: email,
+                            password: password,
+                          );
+                          successSnackbar(
+                              text: "signed-in successfully", context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChatPage()),
+                          );
+                        } catch (e) {
+                          showSnackbar(
+                              text: "ERROR: Failed to signup, Try again!",
+                              context);
+                          return;
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                        );
+                      },
                       child: Text(
-                        'Or continue with',
-                        style: TextStyle(color: Colors.grey[700]),
+                        'Register now',
+                        style: TextStyle(
+                          color: Colors.blue, // Customize the color as needed
+                          fontSize: 16,
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ]),
+            ),
 
-              const SizedBox(height: 50),
+            const SizedBox(height: 50),
 
-              // google + apple sign in buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  // google button
-                  SquareTile(imagePath: 'assets/images/google.png'),
-                ],
-              ),
+            // or continue with
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: Divider(
+            //           thickness: 0.5,
+            //           color: Colors.grey[400],
+            //         ),
+            //       ),
+            //       Padding(
+            //         padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            //         child: Text(
+            //           'Or continue with',
+            //           style: TextStyle(color: Colors.grey[700]),
+            //         ),
+            //       ),
+            //       Expanded(
+            //         child: Divider(
+            //           thickness: 0.5,
+            //           color: Colors.grey[400],
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
-              const SizedBox(height: 50),
+            // const SizedBox(height: 50),
 
-              // not a member? register now
-            ],
-          ),
+            // // google + apple sign in buttons
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: const [
+            //     // google button
+            //     SquareTile(imagePath: 'assets/images/google.png'),
+            //   ],
+            // ),
+
+            // const SizedBox(height: 50),
+
+            // not a member? register now
+          ],
         ),
       ),
     );

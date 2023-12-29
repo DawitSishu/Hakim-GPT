@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 Message(String text, {required bool isMe}) {
   return Align(
@@ -127,4 +128,203 @@ class MyButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void successSnackbar(BuildContext context,
+    {String text = 'Your data is Saved Successfully!!'}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.fromLTRB(35, 5, 35, 25),
+      backgroundColor: const Color.fromARGB(255, 75, 199, 44),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      content: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    ),
+  );
+}
+
+class InputBox extends StatefulWidget {
+  const InputBox({
+    Key? key,
+    this.inputLabel,
+    this.placeHolder,
+    this.isPassword = false,
+    this.textArea = false,
+    this.update,
+    this.customController,
+    this.isPhone = false,
+  }) : super(key: key);
+
+  final inputLabel;
+  final placeHolder;
+  final isPassword;
+  final textArea;
+  final customController;
+  final update;
+  final isPhone;
+
+  @override
+  _InputBoxState createState() => _InputBoxState();
+}
+
+class _InputBoxState extends State<InputBox> {
+  TextEditingController controller = TextEditingController();
+  bool showError = false;
+  FocusNode focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    focusNode.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    focusNode.removeListener(_handleFocusChange);
+    focusNode.dispose();
+    controller.dispose();
+    super.dispose();
+  }
+
+  void _validateInput() {
+    final inputValue = controller.text.trim();
+    final hasInput = inputValue.isNotEmpty;
+    setState(() {
+      showError = !hasInput;
+    });
+  }
+
+  void _handleFocusChange() {
+    if (!focusNode.hasFocus) {
+      _validateInput();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: <Widget>[
+          TextField(
+            onChanged: (value) {
+              widget.update(value);
+              _validateInput();
+            },
+            controller: controller,
+            focusNode: focusNode,
+            obscureText: widget.isPassword,
+            keyboardType:
+                widget.isPhone ? TextInputType.phone : TextInputType.text,
+            decoration: InputDecoration(
+              // prefixIcon: widget.icon,
+              enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide(color: Color.fromARGB(50, 0, 0, 0)),
+              ),
+              border: const OutlineInputBorder(
+                borderSide: BorderSide(width: 16, color: Colors.white),
+              ),
+              hintText: widget.placeHolder,
+              hintStyle: const TextStyle(
+                fontWeight: FontWeight.w300,
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+              labelText: widget.inputLabel,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w300,
+                fontSize: 14,
+              ),
+              errorText: showError
+                  ? 'Please enter a valid  ${widget.inputLabel}'
+                  : null,
+            ),
+            minLines: 1,
+            maxLines: widget.textArea ? 6 : 1,
+          ),
+        ],
+      );
+}
+
+class CustomButton extends StatefulWidget {
+  const CustomButton({Key? key, required this.onPressed, this.label = 'Button'})
+      : super(key: key);
+  final onPressed;
+  final String label;
+
+  @override
+  State<CustomButton> createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton> {
+  var loading = false;
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 50,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            padding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          onPressed: () async {
+            if (!loading) {
+              setState(() {
+                loading = true;
+              });
+              await widget.onPressed();
+              loading = false;
+              setState(() {});
+            }
+          },
+          child: Ink(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(255, 116, 59, 107),
+                  Color.fromARGB(255, 100, 58, 97)
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              constraints: const BoxConstraints(
+                maxWidth: 250,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 5),
+                    child: loading
+                        ? LoadingAnimationWidget.threeRotatingDots(
+                            color: Colors.white, size: 15)
+                        : null,
+                  ),
+                  Text(
+                    widget.label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 }

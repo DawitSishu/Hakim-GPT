@@ -12,7 +12,20 @@
           "package_name": "com.example.hakim"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "224184482202-0utplh84232hnd491n806unusjp3fopp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hakim",
+            "certificate_hash": "a723d287a56bda4f407577e3cd6c6482bb5fdfc5"
+          }
+        },
+        {
+          "client_id": "224184482202-j9ua4is9gsre1ek0bs9knvpm7shoc7vv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAuO3m16dZ9dczPtmhHnzyWW-NH__YJVv0"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "224184482202-j9ua4is9gsre1ek0bs9knvpm7shoc7vv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "224184482202-d0l13dag0vt43lllge6ochjs371e8j7r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.hakim"
+              }
+            }
+          ]
         }
       }
     }
